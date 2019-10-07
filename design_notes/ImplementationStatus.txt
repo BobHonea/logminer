@@ -1,0 +1,308 @@
+This file holds the implementation status
+Update it with progress/regress statements as well as edits
+to relevant file sections.
+
+
+List of Files:
+-------------------------
+Readme.md
+ScriptDesign.txt
+Sorted_Thermal_Log.txt
+DataDispatch.py
+DataSequence.py
+ImplementationStatus.txt
+LogParser.py
+ThermalDataCollection.py
+ThermalDataSequence.py
+ThermalTestRunner.py
+ThermalTestVerification.py
+ThermalVerification.py
+unittest_DataSequence.py
+unittest_LogParser.py
+
+
+File Descriptions:
+-------------------------
+#######################
+### DataDispatch.py ###
+#######################
+    classes:
+        dataSink        Incomplete
+        dispatchData    NearComplete-Testable
+
+    class descriptions:
+        dataSink
+            The dispatchData-facing interface for receiving
+            data routed from a data source.
+
+            status: Incomplete
+                    Some methods are defined
+                    Not clear if method set is complete
+
+        dispatchData:
+            This class manages the registration of DataSinks of
+            parsed log data, as well as the distribution of parsed
+            data records ( emitted from the logParser ).
+
+            status:
+                The design of this class is critical to the grand
+                architecture of the program, which is not solidified.
+                Therefore, methods in this class may be redefined.
+
+                The methods in this class are not completed.
+
+                This class currently instances the logParser class.
+                This may be changed for receiving a logParser reference
+                in the initializer.
+
+
+
+
+#######################
+### DataSequence.py ###
+#######################
+    functions:
+        compareNumber(comparison, arg_a, arg_b)
+        getHMSNumber( number_text, number_max)
+        convertHMStoFloatSeconds(hms_text)
+        compareHMS(comparison, arg_a, arg_b)
+
+    classes:
+        class sequencedData(object)
+
+
+    function descriptions:
+        compareNumber(comparison, arg_a, arg_b)
+            untested
+            comparison function in format used by class sequencedData
+            to support searching the database.
+            Implements simple numerical comparison.
+
+        getHMSNumber( number_text, number_max)
+            untested
+            Unclarity on review.
+            Appears to extract a numerical value in seconds from a list
+            split from the HMS HH:MM::SS text string
+
+        convertHMStoFloatSeconds(hms_text)
+            untested
+            converts HH:MM::SS to a floating point seconds number.
+
+
+        compareHMS(comparison, arg_a, arg_b)
+            comparison function usable by sequencedData class to search
+            a time indexed data record sequence.
+
+
+    class descriptions:
+        sequencedData
+            partially tested, see unittest_DataSequence.py
+            ---> the test DID NOT include the HMS/time sequence
+                 search functions.
+
+            receives data records, into a list of records
+            implements interface to search the record list for
+            a desired record.
+
+
+#######################
+###   LogParser.py  ###
+#######################
+
+    functions:
+        str2int(strval)
+        str2float(strval)
+
+    classes:
+        class wordInputStream(object)
+        class keyedList(object)
+        class simpleParseRecord(object)
+        class logLineParser(object)
+
+
+    class descriptions:
+        wordInputStream(self, textline)
+            perhaps misnamed....
+            This class initializes a textline for processing
+            It supports a search of matching phrases in raw, or conditined
+            text case modes.
+            It can provide words, in sequence, from the textline in
+            single or multiple word blocks.
+
+            status: functional, tested as integrated part of logLineParser.
+
+
+        keyedList(self)
+            This class maintains a list of key addressable items.
+            It implements addition, removal, access of items by keyword.
+            It implements lookup of items by their keywords.
+
+            status: functional, tested as part of logLineParser
+
+        simpleParseRecord(self)
+            Implements accumulation of data into a list.
+            Used as a stand-in for the record/data dispatch mechanism
+            ultimately to drive database generation from the log parse
+            products.
+
+            status: functional, candidate to be discarded.
+                    tested as part of logLineParser.
+
+
+        logLineParser(self)
+            implements parsing of log text lines, one line at a time.
+            generates an output data list/record of [datumName,datum] items.
+
+            status: functional, tested by unittest_LogParser.py
+
+
+
+################################
+### ThermalDataCollection.py ###
+################################
+
+file description:
+    Intended to be a module holding definitions
+    of syntax, and supporting definitions for the
+    Thermal Log Parse Script.
+
+    The motivation is that the ENGINE of Log Parsing should
+    be independent of the Thermal Log Parsing function. Therefore
+    all data configuring and implementing Thermal Log Parsing should
+    be in script modules SEPERATE from the Core Parsing Engine.
+
+    This is part of a REFACTORING of the project as it is being
+    designed.
+
+
+    classes:
+        NONE
+
+    class descriptions:
+        NONE
+
+    file status:
+        UNIMPLEMENTED.
+        contents for this file are to be refactored from other
+        files. other  parts are to be implemented here, with
+        complementary implementation in core-engine modules, and
+        other thermal-log related files.
+
+
+
+
+
+
+################################
+###  ThermalDataSequence.py  ###
+################################
+
+file description:
+    This is initial implementation/sketch of a data sequencer in
+    support of the Thermal Log Verification function.
+    The ensemble of functions and classes in this file are to receive
+    raw data from the log parser and form a database of thermal
+    related data for review against system constraints, as well
+    as forming into synopses and charts.
+
+    file status: inspired, incomplete, mid-refactor.
+
+
+    functions:
+
+    classes:
+        datumDispatch(object)
+            implements per-datum dispatch from registered DatumSource classes
+            to registered DatumSink classes.
+
+            this is the key function for routing data to the
+            relevant/interested database(s).
+
+        datumLocator(object)
+            not sure what this does.
+            defines several enumerated "DatumMaps".
+
+        TemperatureSequence( ds.sequencedData )
+
+
+################################
+###   ThermalTestRunner.py   ###
+################################
+
+file description:
+    This file is intended to be the top-level main() for
+    a Thermal Test Log Analyzer.
+
+    It is entirely made oup of text documenting design ideas
+    for the analyzer and the core-engine.
+
+
+    file status:
+        mostly empty; non-functional.
+
+        refactored version of code from ThermalLogParse.py will
+        locate here, or be refactored there.
+
+        The structure of core-engine control and configuration must be
+        refactored from the form pre-dating the introduction of dataSequencers
+        and dataSource and dataSink and dataDispatch objects.
+
+
+    functions:
+        main(self)
+            an unimplemented shell of main()
+
+
+
+
+###############################
+###  ThermalVerification.py ###
+###############################
+
+file description:
+    Intended to implement the verification algorithms.
+    These algorithms will test data from databases/dataSequences
+    against system rules/constraints to verify if the Log Data
+    from the Thermal Logs represent a successful or defected
+    performance.
+
+    file status:
+        unimplemented, initial design comments only
+
+
+    functions:
+        NONE
+
+    classes:
+        NONE
+
+
+
+#############################
+### unittest_DataSequence ###
+#############################
+
+file_description:
+    unit testing of the dataSequence.py functionality
+
+    file status:
+        the unit tests in place work for the dataSequencer.
+        the dataSequencer class passed the test at one point.
+        it still may....
+
+
+#############################
+###  unittest_LogParser   ###
+#############################
+
+
+file description:
+    unit testing of the logLineParser class
+
+    file status:
+        the logParser passed the unit test at one point
+        it still may.
+
+        the unit testing will evolve as the logLineParser class
+        changes.
+

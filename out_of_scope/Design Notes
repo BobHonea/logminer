@@ -1,0 +1,87 @@
+
+# datetime for logfile names
+
+
+# Objective:
+#  python program to parse thermal log files and populate thermal log review spreadsheet
+
+#  Verify requirements of Thermal test
+#	1. Temperature reporting from EPMs to FPGA
+#	2. Usage of EPM Temps in FGPA Thermal Management
+#	3. Fan Speed Change for FPGA Fan Group
+#	4. Fan Speed Change for System Fans
+#   5. Interboard Communications (EPM reports to FPGA)
+#
+#	1. Ingest log, into array of log line records
+#	2. Line record to include Sequence-Ordinal, Line Type
+#	3. Log ingested for each : EPM1 EPM2 FPGA
+#	4. Generate Temperature Report Sequence
+#		Synchronize Temp Reports from EPMs with FPGA
+#		Interleave EPM Log Reports with FPGA Log Reports
+#	5. Generate a list of events
+#		Fan Alert
+#		Temperature Report
+#		Tach Report
+#		Duty Cycle, PWM
+#
+#	6. Generate list of temperature transitions + alert events
+#	    Whenever A0, or A2-A8 Fan Speed Changes = Event of interest
+#		Whenever Alert/Warning occurs = Event of interest
+#		Whenever Temp is outside Guard range ( 10C to 150C)
+#
+#	7. Emit Events of Interest to array In Sequence
+#
+#	8. Build Review Spreadsheet
+#
+
+
+# Record types (arbitrary, may be changed)
+#
+# FPGA Chip Statistics (FPGA Chip sensor + FPGA Fan)
+# FPGA Board Statistics ( FPGA Board Fan Driver + Remote sensors, FPGA System Fan Statistics )
+# EPM Board Statistics (EPM On-Board Temperatures) x (EPM1, EPM2)
+# System Alerts ( EPM1 Alert, EPM2 Alert, FPGA Alert, EPM1 OverTemp, EPM2 OverTemp, FPGA OverTemp ]
+# FanSpeedChange [ [OldSystemFanSpeed, NewSystemFanSpeed], [OldFPGAchipFanSpeed, New FPGAchipFanSpeed]]
+#
+#
+# Record definitions require datum keynames, and datum types to identify and assign contents into the record instances
+#
+
+
+# info_line_keywords = ["Aurix Tricore TC297 Bare metal OS", "Compiled for platform AVEPM", "Firmware Version Number :",
+#                      "Build date and time:",
+#                      "GIT-SHA :", "BUILD_ID :", "BUILD-TYPE :", "COMPILER :", None]
+
+
+# Read temperature from device 0x94 via bus 1: 99.50 C
+# EPM reports over temperature
+# EPM reports over temperature
+# EPM reports alert
+# fan log on
+# fan logs enabled
+# Device [ A0 | A2 | A4 | A6 | A8 ]  [Tach1 | Tach2] count %ui16, rpm %ui16
+# sensor [ A0 | A2 | A4 | A6 | A8 ] local temperature %f3.2 deg C remote temperature %f3.2 deg C
+# max [ EPM1 | EPM2 ] temperature %f3.2 deg C
+
+# Fan [ A0 | A2 | A4 | A6 | A8 ] duty cycle :%u8, PWM :0x%x2
+# WARNING: Fan alert reported
+# fpga_fan_driver_chip = ["U42"]
+# WARNING: Fan overtemperature reported
+# EPM reports alert
+
+
+# Parse Command Line
+# tlparse fpga=<fpgalogname> epm1=<epm1_log_filename>  epm2=<epm2_log_filename>
+
+
+##----------IN PROGRESS DESIGN---------------
+## Log Specification Validation Procedure (LSVP)
+## 1. DESIGNER: generate Log Specification using LogParser Syntax
+## 2. DESIGNER: instantiate LogSpec keylist dictionary, empty.
+## 2. DESIGNER: generate all value lists referred to by value "keys"
+## 3. DESIGNER: register all keys with the Specific Log Type Key-List Object
+## 4. DESIGNER: invoke LSVP(LogSpec, KeyList)
+## 5. LSVP:     check LogSpec for Syntax (not fitness)
+## 6. LSVP:     generate parsedLogSPec to support post-processing data
+## 7. LSVP:     on success, create LogSpec Object
+##

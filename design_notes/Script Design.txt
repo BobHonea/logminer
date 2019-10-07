@@ -1,0 +1,163 @@
+Objective:
+  python program to parse thermal log files and populate thermal log review spreadsheet
+  Verify requirements of Thermal test
+	1. Temperature reporting from EPMs to FPGA
+	2. Usage of EPM Temps in FGPA Thermal Management
+	3. Fan Speed Change for FPGA Fan Group
+	4. Fan Speed Change for System Fans
+	
+	1. Ingest log, into array of log line records
+	2. Line record to include Sequence-Ordinal, Line Type
+	3. Log ingested for each : EPM1 EPM2 FPGA
+	4. Generate Temperature Report Sequence
+		Synchronize Temp Reports from EPMs with FPGA
+		Interleave EPM Log Reports with FPGA Log Reports
+	5. Generate a list of events - DataSequence descendant Object
+	        **Build Temperature Data Sequence object
+	        *******Harvest temp data from logLines
+	        **Build FanSpeed Data Sequence object
+	        *******Harvest fan speed data from loglines
+	        **Analyze fanSpeed Changes vs Temp.
+
+		Overtemperature Alarm
+		Fan Alert
+		Temperature Report
+		Tach Report
+		Duty Cycle, PWM
+		
+	6. Generate list of temperature transitions + alert events
+	    Whenever A0, or A2-A8 Fan Speed Changes = Event of interest
+		Whenever Alert/Warning occurs = Event of interest
+		Whenever Temp is outside Guard range ( 10C to 150C)
+		
+	7. Emit Events of Interest to array In Sequence
+	
+	8. Build Review Spreadsheet
+
+		
+		
+
+Design Notions:
+	1. Not all events are in the log
+		temperature threshold crossing for Alerts/Warnings are not reported
+		Alert/Warnings occur after processing of thermal reports from Sensors
+		There is an unknown time gap between reading of sensors, EPM messages and alert/warning/action generation
+		Some lines are reported on a timer. Time can be established off of these.
+		Time can be ignored, raw sequence is sufficient for the task.
+
+
+ 2nd Pass Design Notes:
+
+    classes defined in LogParser.py to register keywords and log line syntaxes to fully describe the log(s)
+    specific log classes defined in MCUSystemThermalLogParse.py to configure/instance parsers
+    Acitvity in MCUSystemThermalLogParse.py drives the instantiation of the "DataSequence" objects which compose
+    the databse(s) of events, the evolution of the system through the test period(s).
+
+
+
+
+Hysteresis
+Fan Speed change points measured when speed increases
+Fan speed change points measured when speed decreases
+	speeds measured independently for a0, a2-8
+
+	Fan speed increase/decrease points are offset by Hysteresis
+
+
+overtemp alert
+	generated when sysmax exceeds 100C
+	not generated when symax is less than 100C
+
+85 c alert
+	generated when sysmax exceeds 85C
+	not generated when sysmax is less than 85C
+
+A0 fan speed regulation
+a0 temperature drives a0 fan speed
+a0 fan speed overridden sysmax exceeds a0 by 1...N steps
+
+A2-8 fan speed regulation
+system max temperature drives a2-8 fan speed
+
+epm->fpga temp report communication
+max temperatures on epms are reported to fpga
+
+epm->fpga temp warning communication
+warnings from epms are reported to fpga
+
+fan alert
+	if ANY fan drive speed != actual fan speed
+		and fan speed is significantly lower than expected
+
+		Fan Alert should be issued
+
+		Fan Alert not issued if fan speed resumes
+
+
+
+a0 temp vs sequence
+a2-8 max temp vs sequence
+epm1 max temp vs sequence
+epm2 max temp vs sequence
+
+a0 fan speed vs sequence
+a2-8 fan speed vs sequence
+
+overtemp alert vs sequence
+85c alert vs sequence
+Fan Alert (stopped) vs sequence
+
+
+####################################################################
+##### following cut from Thermal Log Parser during refactoring  ####
+####################################################################
+
+# correlate_event_files()
+#
+# A prerequisite to build_temp_vs_sequence_array.
+# If there are EPM logs available, establish a global
+# sequence number set by taking a union of events from
+# all logs, and discovering the best mapping of the global
+# sequence number set onto the seperate files.
+#
+# build a new file including all events from all files
+# retaining original sequence numbers and including a new
+# global sequence number for each event. Some events from
+# seperate files may share the same global sequence number.
+#
+# In short, serialize all events into one file and data set.
+#
+#
+
+def correlate_event_files():
+    pass
+
+
+
+
+
+
+# build_session_summary_spreadsheet
+#
+#	The summary spreadsheet includes a graph of the
+#	specified temperature Hysteresis path overlaid with
+#	the fan vs temperature path of the FPGA and System Fan Set.
+#	This graph satisfies the requirement of validating the Fan
+#	Speed Hysteresis specification.
+#
+#	He Hysteresis path graph occurs once for the FPGA Fan & Sensors,
+#	and again for the System Fan Set and FPGA and EPM Sensors.
+#
+#	Also included is temperature vs sequence graph, or Temperature
+#	Evolution graph which includes temperatures from
+#	all FPGA and EPM sensors, including the Max temperatures of
+#	EPM1 EPM2 and FPGA, and horizontal bars indicating Fan Alert,
+#	and Overtemperature Alert On periods.
+#
+#	Also included is a system even evolution matrix
+#	Rows defined by sequence
+#	Columns including Max EPM1 & EPM2 & FPGA & Global Max
+#	Sensor temperatures, and FPGA and System Fan PWM values.
+#
+#
+#
